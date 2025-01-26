@@ -1,7 +1,7 @@
 """
 File: openai_basic_call.py
 Author: Sina Mehdinia
-Date: 01/24/2025
+Date: 01/26/2025
 Description: A basic example of using OpenAI's Chat Completion API to answer a question.
 
 Usage:
@@ -14,36 +14,45 @@ import os
 from dotenv import find_dotenv, load_dotenv
 from openai import OpenAI
 
-# Load environment variables from a .env file
-load_dotenv(find_dotenv())
+def main():
+    """
+    Main function to demonstrate how to interact with the OpenAI API.
+    Learn how to:
+    1. Set up and load environment variables.
+    2. Initialize the OpenAI client.
+    3. Send a question and receive a response from the AI.
+    """
+    # Load environment variables from .env file
+    load_dotenv(find_dotenv())
+    
+    # Get the API key from environment variables
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY not found in the environment variables. Make sure to set it in your .env file.")
+    
+    # Initialize the OpenAI client
+    client = OpenAI(api_key=api_key)
+    
+    # Specify the model and user input
+    model = "gpt-4o-mini"
+    question = "What is the multiplication of 1248124 * 21421124?"
+    
+    # Set up conversation context
+    messages = [
+        {"role": "system", "content": "Respond short with emojis."},
+        {"role": "user", "content": question},
+    ]
+    
+    # Call the API and get a response
+    response = client.chat.completions.create(
+        model=model,
+        messages=messages,
+        temperature=0,
+    )
+    
+    # Print the response
+    response_message = response.choices[0].message.content
+    print(f"AI Response: {response_message}")
 
-# Initialize the OpenAI client with the API key from environment variables
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-# Specify the model to use
-model = "gpt-4o-mini"
-
-# Define the user's question
-question = "What is the multiplication of 1248124 * 21421124"
-
-
-# Create a conversation context for the AI
-messages = [
-    {
-        "role": "system",
-        "content": "Respond short with emojis.",
-    },  # System instruction for the AI
-    {"role": "user", "content": question},  # User-provided input
-]
-
-
-# Call the OpenAI Chat Completion API
-response = client.chat.completions.create(
-    model=model,
-    messages=messages,
-    temperature=0,  # Temperature controls randomness; 0 for more predictable output
-)
-
-# Extract and display the AI's response
-response_message = response.choices[0].message.content
-print(response_message)
+if __name__ == "__main__":
+    main()
