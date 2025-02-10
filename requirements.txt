@@ -1,2 +1,7 @@
 openai==1.59.4
 python-dotenv==1.0.1
+langchain-core==0.3.34
+langchain-openai==0.3.4
+langchain-ollama==0.2.3
+langchain-google-genai==2.0.9
+langchain-anthropic==0.3.7
