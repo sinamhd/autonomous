@@ -13,3 +13,7 @@ __pycache__/
 # Ignore other system files
 .DS_Store
 *.log
+
+# Ignore image files
+*.png
+*.jpg
