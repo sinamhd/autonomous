@@ -1,0 +1,214 @@
+<!--
+File: index.html
+Author: Sina Mehdinia
+Date: 02/27/2025
+Description: Frontend for the Receipt Scanner application. 
+It allows users to upload a receipt image and displays extracted details.
+
+Usage:
+1. Open this file in a browser.
+2. Drag and drop or click to upload a receipt image.
+3. The extracted receipt data will be displayed upon successful processing.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Receipt Scanner</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Receipt Scanner</h1>
+
+    <!-- Upload area for receipt images -->
+    <div class="upload-zone" id="dropZone">
+      <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      <p>Drag and drop your receipt here<br />or click to select a file</p>
+      <input type="file" id="fileInput" accept="image/*" />
+    </div>
+
+    <!-- Processing and error messages -->
+    <div class="loading">Processing receipt...</div>
+    <div class="error"></div>
+
+    <!-- Display extracted receipt details -->
+    <div class="result">
+      <h2>Receipt Details</h2>
+
+      <div class="result-section">
+        <h3>Merchant</h3>
+        <div id="merchantInfo"></div>
+      </div>
+
+      <div class="result-section">
+        <h3>Transaction Details</h3>
+        <div id="transactionInfo"></div>
+      </div>
+
+      <div class="result-section">
+        <h3>Items</h3>
+        <ul class="items-list" id="itemsList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Reference to DOM elements
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const loading = document.querySelector('.loading');
+    const error = document.querySelector('.error');
+    const result = document.querySelector('.result');
+
+    // Handle drag-and-drop events
+    const dropEvents = ['dragenter', 'dragover', 'dragleave', 'drop'];
+    dropEvents.forEach(event => {
+      dropZone.addEventListener(event, e => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (['dragenter', 'dragover'].includes(event)) dropZone.classList.add('dragover');
+        if (['dragleave', 'drop'].includes(event)) dropZone.classList.remove('dragover');
+      });
+    });
+
+    // Handle file selection
+    dropZone.addEventListener('drop', e => handleFile(e.dataTransfer.files[0]));
+    dropZone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+
+    function handleFile(file) {
+      /**
+       * Processes the selected or dropped file.
+       * 
+       * Steps:
+       * 1. Checks if the file is a valid image.
+       * 2. Sends the image to the backend for receipt extraction.
+       * 3. Displays the extracted receipt details or an error message.
+       */
+      
+      if (!file?.type.startsWith('image/')) {
+        showError('Please upload an image file');
+        return;
+      }
+
+      showLoading();
+      
+      // Prepare form data for API request
+      const formData = new FormData();
+      formData.append('file', file);
+
+      fetch('http://localhost:1234/upload_receipt', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) throw new Error(data.error);
+        hideLoading();
+        displayResult(data);
+      })
+      .catch(err => {
+        hideLoading();
+        showError(err.message || 'Error processing receipt. Please try again.');
+        console.error(err);
+      });
+    }
+
+    function displayResult(data) {
+      /**
+       * Displays the extracted receipt details.
+       * 
+       * Steps:
+       * 1. Extracts merchant, transaction, and item details.
+       * 2. Formats and updates the page content.
+       */
+
+      if (!data || !data.merchant || !data.transaction || !Array.isArray(data.items)) {
+        showError('Receipt data is missing required fields.');
+        return;
+      }
+
+      // Populate merchant info
+      const merchantName = data.merchant.name || 'N/A';
+      const merchantAddress = data.merchant.address || 'N/A';
+      document.getElementById('merchantInfo').innerHTML = `
+        <p>${merchantName}</p>
+        <p>${merchantAddress}</p>
+      `;
+
+      // Helper function for number formatting
+      const formatNumber = num => typeof num === 'number' ? num.toFixed(2) : 'N/A';
+
+      const transactionDate = data.transaction.date || 'N/A';
+      const subtotal = formatNumber(data.transaction.subtotal);
+      const tax = formatNumber(data.transaction.tax);
+      const total = formatNumber(data.transaction.total);
+
+      // Build the transaction details section
+      let transactionHtml = `
+        <p>Date: ${transactionDate}</p>
+        <p>Subtotal: $${subtotal}</p>
+        <p>Tax: $${tax}</p>
+      `;
+
+      if (data.transaction.tip && data.transaction.tip !== 0) {
+        transactionHtml += `<p>Tip: $${formatNumber(data.transaction.tip)}</p>`;
+      }
+
+      if (data.transaction.discount && data.transaction.discount !== 0) {
+        transactionHtml += `<p>Discount: $${formatNumber(data.transaction.discount)}</p>`;
+      }
+
+      transactionHtml += `<p>Total: $${total}</p>`;
+      
+      document.getElementById('transactionInfo').innerHTML = transactionHtml;
+
+      // Display itemized list
+      const itemsHtml = data.items.map(item => `
+        <li>
+          <span>${item.name || 'N/A'} (${item.quantity || 0}x)</span>
+          <span>$${formatNumber(item.price)}</span>
+        </li>
+      `).join('');
+      
+      document.getElementById('itemsList').innerHTML = itemsHtml;
+      result.style.display = 'block';
+    }
+
+    function showLoading() {
+      /**
+       * Displays the loading message and hides previous results or errors.
+       */
+      loading.style.display = 'block';
+      error.style.display = 'none';
+      result.style.display = 'none';
+    }
+
+    function hideLoading() {
+      /**
+       * Hides the loading message.
+       */
+      loading.style.display = 'none';
+    }
+
+    function showError(message) {
+      /**
+       * Displays an error message and hides previous results.
+       * 
+       * Parameters:
+       * - message (str): The error message to display.
+       */
+      error.textContent = message;
+      error.style.display = 'block';
+      result.style.display = 'none';
+    }
+  </script>
+</body>
+</html>

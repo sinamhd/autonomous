@@ -1,0 +1,158 @@
+/*
+File: styles.css
+Author: Sina Mehdinia
+Date: 02/27/2025
+Description: Stylesheet for the Receipt Scanner application.
+It defines the layout, colors, and animations for the user interface.
+
+Usage:
+- Ensure this file is linked in `index.html` using `<link rel="stylesheet" href="styles.css">`.
+- Modify colors, fonts, and spacing as needed to customize the appearance.
+*/
+
+/* Global styles: Reset margins, paddings, and set a universal font */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, sans-serif;
+    color: #e2e4f3;
+}
+
+/* Page background and base styling */
+body {
+    background: #0f0f1a;
+    color: #e2e4f3;
+    padding: 2rem;
+    line-height: 1.5;
+}
+
+/* Main container settings */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #0f0f1a;
+}
+
+/* Header styles */
+h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #9d4edd;
+}
+
+/* Upload zone styling */
+.upload-zone {
+    border: 2px dashed #7b2cbf;
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #16162e;
+    color: #e2e4f3;
+}
+
+/* Hover and drag state for the upload zone */
+.upload-zone:hover, .upload-zone.dragover {
+    background: #1d1d35;
+    border-color: #c77dff;
+}
+
+/* Upload zone text */
+.upload-zone p {
+    margin: 1rem 0;
+    color: #b8c1ec;
+}
+
+/* Hide default file input */
+#fileInput {
+    display: none;
+}
+
+/* Receipt result display */
+.result {
+    margin-top: 2rem;
+    background: #16162e;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 15px -1px rgba(157, 78, 221, 0.4);
+    display: none;
+    color: #e2e4f3;
+}
+
+/* Result header styling */
+.result h2 {
+    color: #c77dff;
+    margin-bottom: 1rem;
+}
+
+/* Section styling for merchant, transaction, and items */
+.result-section {
+    margin-bottom: 1.5rem;
+    background: #16162e;
+}
+
+/* Section headers */
+.result-section h3 {
+    color: #b8c1ec;
+    margin-bottom: 0.5rem;
+}
+
+/* List styling for items */
+.items-list {
+    list-style: none;
+    background: #16162e;
+}
+
+/* Individual item entry */
+.items-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #2f365f;
+    color: #e2e4f3;
+}
+
+/* Loading message */
+.loading {
+    display: none;
+    text-align: center;
+    margin: 2rem 0;
+    color: #9d4edd;
+}
+
+/* Error message */
+.error {
+    color: #ff6b6b;
+    text-align: center;
+    margin: 1rem 0;
+    display: none;
+}
+
+/* Merchant and transaction info styling */
+#merchantInfo p, 
+#transactionInfo p {
+    border: 1px solid #7b2cbf;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    background-color: #1d1d35;
+}
+
+/* Item styling */
+.items-list li {
+    border: 1px solid #7b2cbf;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    background-color: #1d1d35;
+}
+
+/* Hover effect for interactive elements */
+#merchantInfo p:hover, 
+#transactionInfo p:hover,
+.items-list li:hover {
+    box-shadow: 0 0 8px rgba(199, 125, 255, 0.4);
+    transition: box-shadow 0.3s ease;
+}
