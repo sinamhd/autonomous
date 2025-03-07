@@ -21,21 +21,6 @@ from langchain_core.messages import HumanMessage
 # Load environment variables (Ensure a .env file exists with API keys)
 load_dotenv(find_dotenv())
 
-
-def encode_image(image_path: str) -> str:
-    """
-    Encodes an image file into a base64 string.
-
-    Parameters:
-    - image_path (str): Path to the image file.
-
-    Returns:
-    - str: Base64-encoded string representation of the image.
-    """
-    with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode("utf-8")
-
-
 # Define Pydantic models to structure receipt data
 class MerchantInfo(BaseModel):
     """Represents merchant information on a receipt."""
